@@ -3,7 +3,7 @@
  * Oxigen Class
  * Core class
  */
-class Oxigen //esta clase no hereda de ninguna no?
+class Oxigen
 {
   private $appName,$appVersion;
   function __construct(String $appName,$appVersion = null)
