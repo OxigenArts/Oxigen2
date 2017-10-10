@@ -1,8 +1,9 @@
-<?php
+<?php 
 /**
  * Oxigen Class
  * Core class
  */
+namespace App;
 class Oxigen
 {
   private $appName,$appVersion;
@@ -11,9 +12,11 @@ class Oxigen
     $this->appName = $appName;
     $this->appVersion = $appVersion;
   }
+
   function __destruct(){
 
   }
+
   public function regModule($module){
       $name = $module->name;
       $this->{$name} = $module;
