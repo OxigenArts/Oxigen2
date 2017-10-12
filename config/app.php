@@ -12,11 +12,11 @@ define('DB_DB', 'Test');
 
 //App configuration
 $APP_DIRECTORIES = [
-    'objects-directory' => "/Objects",
-    'config-directory' => "/config",
-    'oxigen-class' => "/core/oxigen.php",
-    'module-directory' => "/Modules",
-    'exceptions-directory' => "/Exceptions"
+    'objects-directory' => "Objects",
+    'config-directory' => "config",
+    'oxigen-class' => "core/oxigen.php",
+    'module-directory' => "Modules",
+    'exceptions-directory' => "Exceptions"
 ];
 
 
