@@ -7,25 +7,28 @@ namespace Core;
 require_once "config/app.php";
 
 class Loader {
-    function __construct() {
+    function __construct($oxigenInstance) {
+        $this->oxigen = $oxigenInstance;
+    }
 
+    public function valid_directory($f) {
+        if (is_object($f) || is_array($f)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public function loadOxigen() {
-        echo "Loading Oxigen....";
         global $APP_DIRECTORIES;
         require_once($APP_DIRECTORIES['oxigen-class']);
         return $this;
     }
 
     public function loadObjects() {
-        echo "Loading Objects...";
         global $APP_DIRECTORIES;
-        echo "test1";
-        print_r(scandir($APP_DIRECTORIES['objects-directory']));
-        echo "test1";
         $toforeach = scandir($APP_DIRECTORIES['objects-directory']);
-        if(is_array($toforeach) || is_object($toforeach)){
+        if($this->valid_directory($toforeach)){
           foreach($toforeach as $object) {
               if(!is_dir($object))
                 require_once($APP_DIRECTORIES['objects-directory']."/".$object);
@@ -35,10 +38,9 @@ class Loader {
     }
 
     public function loadConfig() {
-        echo "Loading Config File...";
         global $APP_DIRECTORIES;
         $toforeach = scandir($APP_DIRECTORIES['config-directory']);
-        if(is_array($toforeach) || is_object($toforeach)){
+        if($this->valid_directory($toforeach)){
           foreach($toforeach as $object) {
               if(!is_dir($object))
                 require_once($APP_DIRECTORIES['config-directory']."/".$object);
@@ -48,20 +50,29 @@ class Loader {
     }
 
     public function loadModules() {
-        echo "Loading Modules...";
         global $APP_DIRECTORIES;
         $toforeach = scandir($APP_DIRECTORIES['module-directory']);
-        if(is_array($toforeach) || is_object($toforeach)){
+        if($this->valid_directory($toforeach)){
           foreach($toforeach as $object) {
-              if(!is_dir($object))
-                require_once($APP_DIRECTORIES['module-directory']."/".$object);
+             if (is_dir($APP_DIRECTORIES['module-directory'] . "/" . $object) && $object != "." && $object != "..") {
+                 require_once($APP_DIRECTORIES['module-directory'] . "/" . $object . "/index.php");
+                 $this->oxigen->regModule(new $object($this->oxigen));
+             }
           }
         }
         return $this;
     }
 
+    public function loadSubModules($moduleName, $subModules) {
+        global $APP_DIRECTORIES;
+        foreach($subModules as $subModule) {
+            require_once($APP_DIRECTORIES['module-directory'] . "/" . $moduleName . "/" . "submodules" . "/" . $subModule . ".php");
+            $this->oxigen->regModule(new $subModule($this->oxigen));
+        }
+        return $this;
+    }
+
     function loadCore() {
-        echo "Starting...";
         return $this
                     ->loadObjects()
                     ->loadConfig()
