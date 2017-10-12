@@ -3,7 +3,7 @@
 namespace Core\Objects;
 use Core\Exceptions\QueryException;
 
-//Query Builder
+//Query Builder 1
 class QueryBuilder {
 
     private $query = "";
