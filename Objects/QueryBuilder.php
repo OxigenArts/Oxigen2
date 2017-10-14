@@ -12,6 +12,13 @@ class QueryBuilder {
 
     }
 
+    private function is_last($item, $arr) {
+        if ($item == end($arr)) {
+            return true;
+        }
+        return false;
+    } 
+
     private function format_to_string($arr) {
         $formatted = "";
         foreach($arr as $item) {
@@ -29,17 +36,78 @@ class QueryBuilder {
         return trim(",", $formatted);
     }
 
+    private function format_insert_rows($arr) {
+        $columns = [];
+        $values = [];
+        $columnString = "(";
+        $valuesString = "";
+        foreach($arr as $paramKey => $paramValue) {
+            array_push($columns, $paramKey);
+            array_push($values, $paramValue);
+        }
+
+        foreach($columns as $column) {
+            if ($this->is_last($column, $columns)) {
+                $columnString .= "$column)";
+            } else {
+                $columnString .= "$column, ";
+            }
+        }
+
+        foreach($values as $value) {
+            if ($this->is_last($value, $values)) {
+                $valuesString .= "$value)";
+            } else {
+                $valuesString .= "$value, ";
+            }
+        }
+
+        return [
+            'columns' => $columnString,
+            'values' => $valuesString
+        ];
+    }
+
+    private function format_update_set($arr) {
+        $formatted = "";
+        foreach($arr as $paramKey => $paramValue) {
+            $formatted .= "$paramKey=$paramValue, ";
+        }
+        return trim(",", $formatted);
+    }
+
+    private function format_where($arr) {
+        $formatted = "";
+        foreach($arr as $paramKey => $paramValue) {
+            $operator = $paramValue['operator'];
+            $value = $paramValue['value'];
+            if ($this->is_last($arr[$paramKey], $arr)) {
+                $formatted .= "{$paramKey} {$operator} {$value}";
+            }
+            $formatted .= "{$paramKey} {$operator} {$value} AND ";
+        }
+        return $formatted;
+    }
+
     public function withColumns($columns) {
+        //withColumns(['id' => 'UNSIGNED INT UNIQUE']);
         $this->columns = $columns;
         return $this;
     }
 
     public function withRows($rows) {
+        //withRows([['name' => "Admin", 'password' => "1234"]]);
         $this->rows = $rows;
         return $this;
     }
 
+    public function withTable($table) {
+        //withTable("users");
+        $this->table = $table;
+    }
+
     public function addColumn($name, $arr_properties) {
+        //addColumn("name", ['TEXT', 'UNIQUE']);
         if (!$this->columns) {
             $this->columns = [];
         }
@@ -50,18 +118,63 @@ class QueryBuilder {
     }
 
     public function removeColumn($name) {
+        //removeColumn("name")
         if (($key = array_search($name, $this->columns)) !== false) {
             unset($this->columns[$key]);
         } else {
             throw new QueryException("Can not remove column from Query if doesn't exist!");
         }
+
+        return $this;
+    }
+
+    public function set($arr) {
+        //set(['name' => 'othername']);
+        $this->setParams = $arr;
+        return $this;
+    }
+
+    public function where($arr) {
+        //where(['id' => ['operator' => '=', 'value' => 1]]);
+        $this->where = $arr;
+        return $this;
+    }
+
+    public function order_by($orderStr) {
+        //order_by("id ASC")
+        $this->order_by = $orderStr;
+        return $this;
     }
 
     public function create($tablename) {
+        //create("users")
         $this->type = "create";
         $this->tablename = $tablename;
         return $this;
     }
+
+    public function update() {
+        //update()
+        $this->type = "update";
+        return $this;
+    }
+
+    public function insert() {
+        $this->type = "insert";
+        return $this;
+    }
+
+    public function delete() {
+        $this->type = "delete";
+        return $this;
+    }
+
+    public function select() {
+        $this->type = "select";
+        return $this;
+    }
+
+    
 
     public function build() {
         switch($this->type) {
@@ -77,6 +190,67 @@ class QueryBuilder {
                 } else {
                     throw new QueryException("No columns defined. Make sure that you are defining columns before building a create query.");
                 }
+            break;
+
+            case "update":
+                if ($this->tablename) {
+                    if ($this->setParams) {
+                        $set = $this->format_update_set($this->setParams);
+                        if ($this->where) {
+                                $where = $this->format_where($this->where);
+                                $this->query = "UPDATE {$this->tablename} SET $set WHERE $where";
+                        } else {
+                                $this->query = "UPDATE {$this->tablename} SET $set";
+                        }
+                    } else {
+                        throw new QueryException("Set params has to be defined. (QueryBuilder::set)");
+                    }
+                } else {
+                    throw new QueryException("Table name not specified. (QueryBuilder::withTable)");
+                }
+                return $this->query;
+            break;
+
+            case "delete":
+                if ($this->tablename) {
+                    if ($this->where) {
+                        $where = $this->format_where($this->where);
+                        $this->query = "DELETE FROM {$this->tablename} WHERE $where"; 
+                    } else {
+                        $this->query = "DELETE FROM {$this->tablename}";
+                    }
+                } else {
+                    throw new QueryException("Table name not specified. (QueryBuilder::withTable)");
+                }
+                return $this->query;
+            break;
+
+            case "insert":
+                if ($this->tablename) {
+                    if ($this->rows) {
+                        $rows = $this->format_insert_rows($rows);
+                        $columns = $rows['columns'];
+                        $values = $rows['values'];
+                        $this->query = "INSERT INTO {$this->tablename} $columns VALUES $values";
+                    } else {
+                        throw new QueryException("Rows not specified. (QueryBuilder::withRows)");
+                    }
+                } else {
+                    throw new QueryException("Table name not specified. (QueryBuilder::withTable)");
+                }
+                return $this->query;
+            break;
+
+            case "select":
+                if ($this->tablename) {
+                    if ($this->where) {
+                        $where = $this->format_where($where);
+                        $this->query = "SELECT ";
+                    }
+                }
+            break;
+            default:
+                throw new QueryException("Type operation not recognized or uknown (QueryBuilder::$ type");
             break;
         }
 

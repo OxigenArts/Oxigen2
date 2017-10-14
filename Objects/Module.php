@@ -6,6 +6,7 @@ namespace Core;
 class Module {
     public $subModules = [];
     public $name = "defaultName";
+    
     function __construct($oxigen) {
         $this->oxigen = $oxigen;
     }
@@ -14,6 +15,7 @@ class Module {
         $this->oxigen->loader->loadSubModules($this->name, $this->subModules);
     }
 
+    
 }
 
 ?>

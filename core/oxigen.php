@@ -10,6 +10,7 @@ use Core\Loader;
 class Oxigen
 {
   private $appName,$appVersion;
+  public $loader, $loadedModules;
   function __construct($appName,$appVersion = null)
   {
     $this->loader = new Loader($this);
