@@ -3,11 +3,15 @@
 namespace Core\Objects;
 use Core\Exceptions\QueryException;
 
-//Query Builder 1
+/**
+ * Query Builder Class
+ * Version: ALPHA 1
+ * Author: Angel González, Pablo Androetto.
+ * Last change: 15/10/2017 6:17PM GMD-4:00
+ */
 class QueryBuilder {
 
     private $query = "";
-
     function __construct() {
 
     }
@@ -82,9 +86,11 @@ class QueryBuilder {
             $operator = $paramValue['operator'];
             $value = $paramValue['value'];
             if ($this->is_last($arr[$paramKey], $arr)) {
-                $formatted .= "{$paramKey} {$operator} {$value}";
+                $formatted .= "'{$paramKey}' {$operator} '{$value}'";
+            } else {
+                $formatted .= "'{$paramKey}' {$operator} '{$value}' AND ";
             }
-            $formatted .= "{$paramKey} {$operator} {$value} AND ";
+            
         }
         return $formatted;
     }
@@ -146,10 +152,10 @@ class QueryBuilder {
         return $this;
     }
 
-    public function create($tablename) {
+    public function create($table) {
         //create("users")
         $this->type = "create";
-        $this->tablename = $tablename;
+        $this->table = $table;
         return $this;
     }
 
@@ -169,7 +175,8 @@ class QueryBuilder {
         return $this;
     }
 
-    public function select() {
+    public function select($select = "*") {
+        $this->select = $select;
         $this->type = "select";
         return $this;
     }
@@ -180,9 +187,9 @@ class QueryBuilder {
         switch($this->type) {
             case "create":
                 if ($this->columns) {
-                    if ($this->tablename) {
+                    if ($this->table) {
                         $create_string = $this->format_create_params($this->columns);
-                        $this->query = "CREATE TABLE {$this->tablename} ($create_string)";
+                        $this->query = "CREATE TABLE {$this->table} ($create_string)";
                         return $this->query;
                     } else {
                         throw new QueryException("No table name defined. Make sure that you are defining the table name before building a create query.");
@@ -193,14 +200,14 @@ class QueryBuilder {
             break;
 
             case "update":
-                if ($this->tablename) {
+                if ($this->table) {
                     if ($this->setParams) {
                         $set = $this->format_update_set($this->setParams);
                         if ($this->where) {
                                 $where = $this->format_where($this->where);
-                                $this->query = "UPDATE {$this->tablename} SET $set WHERE $where";
+                                $this->query = "UPDATE {$this->table} SET $set WHERE $where";
                         } else {
-                                $this->query = "UPDATE {$this->tablename} SET $set";
+                                $this->query = "UPDATE {$this->table} SET $set";
                         }
                     } else {
                         throw new QueryException("Set params has to be defined. (QueryBuilder::set)");
@@ -212,12 +219,12 @@ class QueryBuilder {
             break;
 
             case "delete":
-                if ($this->tablename) {
+                if ($this->table) {
                     if ($this->where) {
                         $where = $this->format_where($this->where);
-                        $this->query = "DELETE FROM {$this->tablename} WHERE $where"; 
+                        $this->query = "DELETE FROM {$this->table} WHERE $where"; 
                     } else {
-                        $this->query = "DELETE FROM {$this->tablename}";
+                        $this->query = "DELETE FROM {$this->table}";
                     }
                 } else {
                     throw new QueryException("Table name not specified. (QueryBuilder::withTable)");
@@ -226,12 +233,12 @@ class QueryBuilder {
             break;
 
             case "insert":
-                if ($this->tablename) {
+                if ($this->table) {
                     if ($this->rows) {
                         $rows = $this->format_insert_rows($rows);
                         $columns = $rows['columns'];
                         $values = $rows['values'];
-                        $this->query = "INSERT INTO {$this->tablename} $columns VALUES $values";
+                        $this->query = "INSERT INTO {$this->table} $columns VALUES $values";
                     } else {
                         throw new QueryException("Rows not specified. (QueryBuilder::withRows)");
                     }
@@ -242,13 +249,19 @@ class QueryBuilder {
             break;
 
             case "select":
-                if ($this->tablename) {
+                if ($this->table) {
                     if ($this->where) {
-                        $where = $this->format_where($where);
-                        $this->query = "SELECT ";
+                        $where = $this->format_where($this->where);
+                        $this->query = "SELECT {$this->select} FROM {$this->table} WHERE $where";
+                    } else {
+                        $this->query = "SELECT {$this->select} FROM {$this->table}";
                     }
+                } else {
+                    throw new QueryException("Table name not specified. (QueryBuilder::withTable");
                 }
+                return $this->query;
             break;
+
             default:
                 throw new QueryException("Type operation not recognized or uknown (QueryBuilder::$ type");
             break;
