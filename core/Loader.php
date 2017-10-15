@@ -56,6 +56,7 @@ class Loader {
           foreach($toforeach as $object) {
              if (is_dir($APP_DIRECTORIES['module-directory'] . "/" . $object) && $object != "." && $object != "..") {
                  require_once($APP_DIRECTORIES['module-directory'] . "/" . $object . "/index.php");
+                 //echo "loading module $object </br>";
                  $this->oxigen->regModule(new $object($this->oxigen));
              }
           }
@@ -67,7 +68,12 @@ class Loader {
         global $APP_DIRECTORIES;
         foreach($subModules as $subModule) {
             require_once($APP_DIRECTORIES['module-directory'] . "/" . $moduleName . "/" . "submodules" . "/" . $subModule . ".php");
-            $this->oxigen->regModule(new $subModule($this->oxigen));
+            $sMod = new $subModule($this->oxigen);
+            if ($sMod->isGlobal) {
+                $this->oxigen->regModule($sMod);
+            }
+
+            $this->oxigen->{$moduleName}->regSubModule($sMod->name);
         }
         return $this;
     }

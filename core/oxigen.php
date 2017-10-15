@@ -32,6 +32,7 @@ class Oxigen
   public function regModule($module){
       $name = $module->name;
       $this->{$name} = $module;
+      $this->{$name}->initSubModules();
       $this->loadedModules[$name] = "loaded";
   }
   
