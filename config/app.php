@@ -19,5 +19,8 @@ $APP_DIRECTORIES = [
     'exceptions-directory' => "Exceptions"
 ];
 
+$PATH_CONFIGURATION = [
+    'basepath' => "/Oxigen/Oxigen2/"
+]
 
 ?>

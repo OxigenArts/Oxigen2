@@ -9,6 +9,7 @@ class Module {
     public $name = "defaultName";
     public $tablename;
     public $isGlobal = true;
+    public $enabled = true;
     private $queryBuilder;
 
     function __construct($oxigen) {
@@ -17,6 +18,9 @@ class Module {
         if ($this->tablename) {
             $this->queryBuilder->withTable($this->tablename);
         }
+
+        //Init sequence
+        $this->__init__();
     }
 
     function initSubModules() {
@@ -26,6 +30,15 @@ class Module {
     function regSubModule($subModuleName) {
         $name = $this->name;
         $this->{$name} = $this->oxigen->{$subModuleName};
+    }
+
+    function __init__() {
+        if (method_exists($this->name, 'init')) {
+            $this->init();
+        } else {
+            echo "there's not init function";
+        }
+        //$this->init();
     }
 
     function get($id = null) {

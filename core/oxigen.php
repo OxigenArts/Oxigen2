@@ -25,11 +25,19 @@ class Oxigen
 
   public function init() {
     $this->loader->loadCore();
+    $this->handle("Router");
+  }
+
+  public function handle($moduleName) {
+    $this->{$moduleName}->start();
   }
 
 
 
   public function regModule($module){
+      if (!$module->enabled) {
+        return;
+      }
       $name = $module->name;
       $this->{$name} = $module;
       $this->{$name}->initSubModules();

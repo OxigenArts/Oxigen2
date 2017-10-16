@@ -57,7 +57,8 @@ class Loader {
              if (is_dir($APP_DIRECTORIES['module-directory'] . "/" . $object) && $object != "." && $object != "..") {
                  require_once($APP_DIRECTORIES['module-directory'] . "/" . $object . "/index.php");
                  //echo "loading module $object </br>";
-                 $this->oxigen->regModule(new $object($this->oxigen));
+                $this->oxigen->regModule(new $object($this->oxigen));
+                 
              }
           }
         }
