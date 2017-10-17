@@ -1,11 +1,15 @@
 <?php
 
 use Core\Module;
+require_once('Objects/Route.php');
+
 
 class Router extends Module {
     public $name = "Router";
     public $fetchedRoute = [];
     public $routes = [];
+    public $routeObj;
+
     function __construct($oxigen) {
         global $PATH_CONFIGURATION;
         $this->basepath = $PATH_CONFIGURATION['basepath'];
@@ -27,6 +31,7 @@ class Router extends Module {
         global $Router;
         $Router = $this;
         require_once('routes.php');
+        $this->createRoute("/user/:id", "");
     }
 
     function createContext($context, $callback) {
@@ -39,7 +44,8 @@ class Router extends Module {
     * Creates a direct Route
     */
     function createRoute($path, $method) {
-            
+        $r = new Route($this, $path, $method);
+        $r->getPathParameters();
     }
 
 

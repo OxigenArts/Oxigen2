@@ -38,10 +38,16 @@ class Module {
         } else {
             echo "there's not init function";
         }
+
+
         //$this->init();
     }
 
-    function get($id = null) {
+    function migrateTables() {
+        require_once("tables.php");
+    }
+
+    function get(int $id = null) {
         if (!$id) {
             $query = $this->queryBuilder->select()->build();
         } else {
@@ -49,13 +55,14 @@ class Module {
                 'id' => [
                     'operator' => "=", 
                     'value' => $id
-                ],
-                'name' => [
-                    'operator' => "=",
-                    'value' => "Angel"
                 ]
                 ])->select()->build();
         }
+        echo "query: " . $query;
+    }
+
+    function getWhere(Array $data = null) {
+        $query = $this->queryBuilder($data)->select()->build();
         echo "query: " . $query;
     }
 

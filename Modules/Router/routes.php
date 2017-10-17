@@ -2,6 +2,6 @@
 
 global $Router;
 
-$Router->test();
+
 
 ?>
