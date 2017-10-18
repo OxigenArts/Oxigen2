@@ -12,6 +12,7 @@ use Core\Exceptions\QueryException;
 class QueryBuilder {
 
     private $query = "";
+    private $where;
     function __construct() {
 
     }
@@ -75,7 +76,10 @@ class QueryBuilder {
     private function format_update_set($arr) {
         $formatted = "";
         foreach($arr as $paramKey => $paramValue) {
-            $formatted .= "$paramKey=$paramValue, ";
+            if (!is_numeric($paramValue)) {
+                $pVal = "'$paramValue'";
+            }
+            $formatted .= "$paramKey=$pVal, ";
         }
         return trim(",", $formatted);
     }
@@ -85,8 +89,11 @@ class QueryBuilder {
         foreach($arr as $paramKey => $paramValue) {
             $operator = $paramValue['operator'];
             $value = $paramValue['value'];
+            if (!is_numeric($value)) {
+                $value = "'$value'";
+            }
             if ($this->is_last($arr[$paramKey], $arr)) {
-                $formatted .= "'{$paramKey}' {$operator} '{$value}'";
+                $formatted .= "{$paramKey} {$operator} {$value}";
             } else {
                 $formatted .= "'{$paramKey}' {$operator} '{$value}' AND ";
             }
@@ -253,6 +260,7 @@ class QueryBuilder {
                     if ($this->where) {
                         $where = $this->format_where($this->where);
                         $this->query = "SELECT {$this->select} FROM {$this->table} WHERE $where";
+                        //print $this->query . "</br>";
                     } else {
                         $this->query = "SELECT {$this->select} FROM {$this->table}";
                     }

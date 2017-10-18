@@ -24,7 +24,7 @@ class Route {
         preg_match("/(?<!\w):\w+/", $this->path, $m);
         $this->paramPositions = $m;
 
-        print_r($this->paramPositions);
+        //print_r($this->paramPositions);
     }
 
     
