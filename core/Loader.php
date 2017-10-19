@@ -65,6 +65,18 @@ class Loader {
         return $this;
     }
 
+    public function loadExceptions() {
+        global $APP_DIRECTORIES;
+        $toforeach = scandir($APP_DIRECTORIES['exceptions-directory']);
+        if($this->valid_directory($toforeach)){
+          foreach($toforeach as $object) {
+              if(!is_dir($object))
+                require_once($APP_DIRECTORIES['exceptions-directory']."/".$object);
+          }
+        }
+        return $this;
+    }
+
     public function loadSubModules($moduleName, $subModules) {
         global $APP_DIRECTORIES;
         foreach($subModules as $subModule) {
@@ -81,6 +93,7 @@ class Loader {
 
     function loadCore() {
         return $this
+                    ->loadExceptions()
                     ->loadObjects()
                     ->loadConfig()
                     ->loadOxigen()

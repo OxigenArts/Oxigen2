@@ -11,8 +11,12 @@ use Core\Exceptions\QueryException;
  */
 class QueryBuilder {
 
-    private $query = "";
-    private $where;
+    public $query = "";
+    public $where;
+    public $order_by = "";
+    public $rows = [];
+    public $columns = [];
+    public $table = "";
     function __construct() {
 
     }
@@ -36,19 +40,24 @@ class QueryBuilder {
     private function format_create_params($arr) {
         $formatted = "";
         foreach($arr as $paramKey => $paramValue) {
-            $formatted .= "$paramKey $paramValue, ";
+            $formatted .= "$paramKey $paramValue,";
         }
-        return trim(",", $formatted);
+        return trim($formatted, ",");
     }
 
     private function format_insert_rows($arr) {
         $columns = [];
         $values = [];
         $columnString = "(";
-        $valuesString = "";
+        $valuesString = "(";
+
+
         foreach($arr as $paramKey => $paramValue) {
+            if (!is_numeric($paramValue)) {
+                $pVal = "'$paramValue'";
+            }
             array_push($columns, $paramKey);
-            array_push($values, $paramValue);
+            array_push($values, $pVal);
         }
 
         foreach($columns as $column) {
@@ -75,13 +84,15 @@ class QueryBuilder {
 
     private function format_update_set($arr) {
         $formatted = "";
+        //print_r($arr);
         foreach($arr as $paramKey => $paramValue) {
             if (!is_numeric($paramValue)) {
                 $pVal = "'$paramValue'";
             }
-            $formatted .= "$paramKey=$pVal, ";
+            $formatted .= "$paramKey=$pVal,";
         }
-        return trim(",", $formatted);
+
+        return trim($formatted, ",");
     }
 
     private function format_where($arr) {
@@ -159,7 +170,7 @@ class QueryBuilder {
         return $this;
     }
 
-    public function create($table) {
+    public function create($table = null) {
         //create("users")
         $this->type = "create";
         $this->table = $table;
@@ -196,7 +207,7 @@ class QueryBuilder {
                 if ($this->columns) {
                     if ($this->table) {
                         $create_string = $this->format_create_params($this->columns);
-                        $this->query = "CREATE TABLE {$this->table} ($create_string)";
+                        $this->query = "CREATE TABLE IF NOT EXISTS {$this->table} ($create_string)";
                         return $this->query;
                     } else {
                         throw new QueryException("No table name defined. Make sure that you are defining the table name before building a create query.");
@@ -210,6 +221,7 @@ class QueryBuilder {
                 if ($this->table) {
                     if ($this->setParams) {
                         $set = $this->format_update_set($this->setParams);
+                        echo "$set </br>";
                         if ($this->where) {
                                 $where = $this->format_where($this->where);
                                 $this->query = "UPDATE {$this->table} SET $set WHERE $where";
@@ -242,7 +254,7 @@ class QueryBuilder {
             case "insert":
                 if ($this->table) {
                     if ($this->rows) {
-                        $rows = $this->format_insert_rows($rows);
+                        $rows = $this->format_insert_rows($this->rows);
                         $columns = $rows['columns'];
                         $values = $rows['values'];
                         $this->query = "INSERT INTO {$this->table} $columns VALUES $values";
@@ -259,10 +271,10 @@ class QueryBuilder {
                 if ($this->table) {
                     if ($this->where) {
                         $where = $this->format_where($this->where);
-                        $this->query = "SELECT {$this->select} FROM {$this->table} WHERE $where";
+                        $this->query = "SELECT {$this->select} FROM {$this->table} WHERE $where {$this->order_by}";
                         //print $this->query . "</br>";
                     } else {
-                        $this->query = "SELECT {$this->select} FROM {$this->table}";
+                        $this->query = "SELECT {$this->select} FROM {$this->table} {$this->order_by}";
                     }
                 } else {
                     throw new QueryException("Table name not specified. (QueryBuilder::withTable");

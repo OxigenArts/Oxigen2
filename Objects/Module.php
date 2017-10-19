@@ -10,8 +10,9 @@ class Module {
     public $tablename;
     public $isGlobal = true;
     public $enabled = true;
-    private $db;
-    private $queryBuilder;
+    public $generate_table = true;
+    public $db;
+    public $queryBuilder;
     function __construct($oxigen) {
         if (!$this->enabled) {
             return;
@@ -39,6 +40,11 @@ class Module {
     }
 
     function __init__() {
+
+
+        if (count($this->queryBuilder->rows) > 0) $this->generate();
+        
+
         if (method_exists($this->name, 'init')) {
             $this->init();
         } else {
@@ -79,12 +85,95 @@ class Module {
 
     function getAll(Array $data = null) {
         if (!$data) {
-            $query = $this->queryBuilder->select()->build();
+            $query = $this
+                        ->queryBuilder
+                        ->select()
+                        ->build();
         } else {
-            $query = $this->queryBuilder->select()->where($data)->build();
+            $query = $this
+                        ->queryBuilder
+                        ->select()
+                        ->where($data)
+                        ->build();
         }
         
         return $this->db->execute($query);
+    }
+
+    function update($id, Array $data) {
+        $query = $this->queryBuilder->update()->where([
+            'id' => [
+                'operator' => '=',
+                'value' => $id
+            ]
+        ])
+            ->set($data)
+            ->build();
+
+        return $this->db->execute($query);
+    }
+
+    function updateWhere(Array $where, Array $data) {
+        $query = $this
+                ->queryBuilder
+                ->update()
+                ->where($where)
+                ->set($data)
+                ->build();
+
+        return $this->db->execute($query);
+    }
+
+    function delete($id) {
+        $query = $this
+                ->queryBuilder
+                ->delete()
+                ->where([
+                    'id' => [
+                        'operator' => '=',
+                        'value' => $id
+                    ]
+                ])
+                ->build();
+        return $this->db->execute($query);
+    }
+
+    function deleteWhere(Array $where) {
+        $query = $this
+                 ->queryBuilder
+                 ->delete()
+                 ->where($where)
+                 ->build();
+        return $this->db->execute($query);
+    }
+
+    function add(Array $data) {
+        $query = $this
+                 ->queryBuilder
+                 ->insert()
+                 ->withRows($data)
+                 ->build();
+        return $this->db->execute($query);
+    }
+
+    function __create_table(Array $data) {
+        $query = $this
+                 ->queryBuilder
+                 ->create($this->tablename)
+                 ->withColumns($data)
+                 ->build();
+        
+        return $this->db->execute($query);
+    }
+
+    function generate() {
+        if ($this->generate_table) {
+            $query = $this
+                    ->queryBuilder
+                    ->create($this->tablename)
+                    ->build();
+            return $this->db->execute($query);
+        }
     }
 
 

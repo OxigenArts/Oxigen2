@@ -14,7 +14,7 @@ class Database {
     }
 
     function __destruct() {
-        
+        $this->PDO = null;
     }
 
 

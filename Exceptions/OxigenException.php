@@ -3,6 +3,7 @@
 namespace Core\Exceptions;
 
 use Core\Exceptions\IException;
+use \Exception;
 
 abstract class OxigenException extends Exception implements IException
 {
