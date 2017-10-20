@@ -79,14 +79,33 @@ class Loader {
 
     public function loadSubModules($moduleName, $subModules) {
         global $APP_DIRECTORIES;
-        foreach($subModules as $subModule) {
-            require_once($APP_DIRECTORIES['module-directory'] . "/" . $moduleName . "/" . "submodules" . "/" . $subModule . ".php");
-            $sMod = new $subModule($this->oxigen);
-            if ($sMod->isGlobal) {
-                $this->oxigen->regModule($sMod);
-            }
+        $toforeach = scandir($APP_DIRECTORIES['module-directory'] . "/" . $moduleName . "/" . "submodules" . "/");
+        if ($this->valid_directory($toforeach)) {
+            foreach($toforeach as $object) {
+                //echo $object;
+                if ($object == "." || $object == "..") {
+                    continue;
+                }
 
-            $this->oxigen->{$moduleName}->regSubModule($sMod->name);
+                if (is_dir($object)) {
+                    require_once($APP_DIRECTORIES['module-directory'] . "/" . $moduleName . "/" . "submodules" . "/" . $object . "/index.php");
+                    $sMod = new $object($this->oxigen);
+                    if ($sMod->isGlobal) {
+                        $this->oxigen->regModule($sMod);
+                    }
+                    
+                    $this->oxigen->{$moduleName}->regSubModule($sMod);
+                } else {
+                    require_once($APP_DIRECTORIES['module-directory'] . "/" . $moduleName . "/" . "submodules" . "/" . $object);
+                    $className = trim($object, ".php");
+                    $sMod = new $className($this->oxigen);
+                    if ($sMod->isGlobal) {
+                        $this->oxigen->regModule($sMod);
+                    }
+        
+                    $this->oxigen->{$moduleName}->regSubModule($sMod->name);
+                }
+            }
         }
         return $this;
     }

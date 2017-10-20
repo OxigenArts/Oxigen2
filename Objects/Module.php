@@ -31,7 +31,10 @@ class Module {
     }
 
     function initSubModules() {
-        $this->oxigen->loader->loadSubModules($this->name, $this->subModules);
+        if (count($this->subModules) > 0) {
+            $this->oxigen->loader->loadSubModules($this->name, $this->subModules);
+        }
+        
     }
 
     function regSubModule($subModuleName) {
