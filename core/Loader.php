@@ -57,7 +57,7 @@ class Loader {
              if (is_dir($APP_DIRECTORIES['module-directory'] . "/" . $object) && $object != "." && $object != "..") {
                  require_once($APP_DIRECTORIES['module-directory'] . "/" . $object . "/index.php");
                  //echo "loading module $object </br>";
-                $this->oxigen->regModule(new $object($this->oxigen));
+                $this->oxigen->regModule(new $object($this->oxigen), $APP_DIRECTORIES['module-directory'] . "/" . $object);
                  
              }
           }
@@ -90,6 +90,7 @@ class Loader {
                 if (is_dir($object)) {
                     require_once($APP_DIRECTORIES['module-directory'] . "/" . $moduleName . "/" . "submodules" . "/" . $object . "/index.php");
                     $sMod = new $object($this->oxigen);
+                    $sMod->moduleRoute = $APP_DIRECTORIES['module-directory'] . "/" . $moduleName . "/" . "submodules" . "/" . $object;
                     if ($sMod->isGlobal) {
                         $this->oxigen->regModule($sMod);
                     }

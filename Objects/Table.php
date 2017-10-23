@@ -3,40 +3,29 @@
 namespace Core\Objects;
 
 class Table {
-    function __construct($tablename) {
-        $this->tablename = $tablename;
+    public $columns = [];
+    
+    function __construct() {
     }
 
-    public function generateTable() {
-        return $this;
+    function string($name, $properties = null) {
+        $this->columns[$name] = "TEXT $properties";
     }
 
-    public function destroyTable() {
-        return $this;
+    function varchar($name, $length, $properties = null) {
+        $this->columns[$name] = "VARCHAR($length) $properties";    
     }
 
-    public function getBy($rowName, $rowRef, $expression = "=") {
-        return $this;
+    function integer($name, $properties = null, $length = null) {
+        $this->columns[$name] = ($length) ? "INT($length) $properties" : "INT $properties";
     }
 
-    public function getAll() {
-        return $this;
+    function float($name, $properties = null, $lengthmin = null, $lengthmax = null) {
+        $this->columns[$name] = ($lengthmin) ? (($lengthmax) ? "FLOAT($lengthmin, $lengthmax) $properties" : "FLOAT($lengthmin) $properties") : "FLOAT $properties";  
     }
 
-    public function delete() {
-        return $this;
-    }
-
-    public function update() {
-        return $this;
-    }
-
-    public function insert() {
-        return $this;
-    }
-
-    public function exchangeId() {
-        return $this;
+    function double($name, $properties = null, $lengthmin = null, $lengthmax = null) {
+        $this->columns[$name] = ($lengthmin) ? (($lengthmax) ? "DOUBLE($lengthmin, $lengthmax) $properties" : "DOUBLE($lengthmin) $properties") : "DOUBLE $properties";  
     }
 
 }

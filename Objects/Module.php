@@ -4,9 +4,11 @@
 namespace Core;
 use Core\Objects\QueryBuilder;
 use Core\Objects\Database;
+use Core\Objects\Table;
 class Module {
     public $subModules = [];
     public $name = "defaultName";
+    public $moduleRoute;
     public $tablename;
     public $isGlobal = true;
     public $enabled = true;
@@ -54,12 +56,30 @@ class Module {
             //echo "there's not init function";
         }
 
+        //$this->migrateTables();
+
 
         //$this->init();
     }
 
+    function executeTableQuery($name, $newTable) {
+        print_r(array($name, $newTable));
+        $this->__create_table($name, $newTable->columns);
+    }
+
     function migrateTables() {
-        require_once("tables.php");
+        if (file_exists($this->moduleRoute . "/tables.php") && $this->moduleRoute) {
+            global $Module;
+            $Module = $this;
+            require_once($this->moduleRoute . "/tables.php");
+        } else {
+            //echo $this->moduleRoute . "/tables.php doesn't exists.";
+        }
+    }
+
+    function table($name, $table) {
+        $newTable = $table(new Table());
+        $this->executeTableQuery($name, $newTable);
     }
 
     function get($id = null) {
@@ -159,13 +179,13 @@ class Module {
         return $this->db->execute($query);
     }
 
-    function __create_table(Array $data) {
+    function __create_table($name, Array $data) {
         $query = $this
                  ->queryBuilder
-                 ->create($this->tablename)
+                 ->create($name)
                  ->withColumns($data)
                  ->build();
-        
+        echo $query . "</br>";
         return $this->db->execute($query);
     }
 

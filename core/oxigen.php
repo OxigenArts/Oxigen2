@@ -34,13 +34,19 @@ class Oxigen
 
 
 
-  public function regModule($module){
+  public function regModule($module, $routePath = null){
       if (!$module->enabled) {
         return;
       }
+
+      if ($routePath) {
+        $module->moduleRoute = $routePath;
+      }
+
       $name = $module->name;
       $this->{$name} = $module;
       $this->{$name}->initSubModules();
+      $this->{$name}->migrateTables();
       $this->loadedModules[$name] = "loaded";
   }
   
