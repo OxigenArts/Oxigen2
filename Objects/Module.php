@@ -63,7 +63,7 @@ class Module {
     }
 
     function executeTableQuery($name, $newTable) {
-        print_r(array($name, $newTable));
+        //print_r(array($name, $newTable));
         $this->__create_table($name, $newTable->columns);
     }
 
@@ -185,7 +185,7 @@ class Module {
                  ->create($name)
                  ->withColumns($data)
                  ->build();
-        echo $query . "</br>";
+        //echo $query . "</br>";
         return $this->db->execute($query);
     }
 

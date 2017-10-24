@@ -25,6 +25,14 @@ class Test extends Module {
         $this->generate();
     }
 
+    function test($a) {
+        echo "test $a";
+    }
+
+    function othertest($name, $other) {
+        echo "test $name $other";
+    }
+
     
 
 
