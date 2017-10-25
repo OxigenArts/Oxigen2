@@ -7,6 +7,7 @@ use Core\Objects\Database;
 use Core\Objects\Table;
 class Module {
     public $subModules = [];
+    public $routedMethods = [];
     public $name = "defaultName";
     public $moduleRoute;
     public $tablename;

@@ -31,16 +31,10 @@ class Route {
         $matches = [];
         if ($method == $this->method && preg_match($this->routeMatch, $url, $matches)) {
             array_shift($matches);
-            //print_r($this->paramPositions);
             $this->routeParameters = $matches;
-            /*foreach($matches as $matchIndex => $matchValue) {
-                
-                $parsedIndex = $this->getParamPosition($matchIndex);
-                $parsedIndex = str_replace(":", "", $parsedIndex);
-                $this->parsedRoute[$parsedIndex] = $matchValue;
-            }*/
-
             $this->call_module_method();
+            $this->parent->routeExecuted = true;
+            //echo $this->path;
         }
     }
 
@@ -64,8 +58,8 @@ class Route {
         preg_match("/(?<!\w):\w+/", $this->path, $m);
         $this->paramPositions = $m;
         
-        print "</br>" . $this->path . "</br>";
-        print_r($this->paramPositions);
+        //print "</br>" . $this->path . "</br>";
+        //print_r($this->paramPositions);
     }
 
     

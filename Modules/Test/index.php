@@ -7,7 +7,13 @@ class Test extends Module {
     public $name = "Test";
     public $tablename = "other_test";
     public $enabled = true;
-
+    public $routedMethods = [
+        [
+            'route' => 'strangemethod',
+            'method' => 'GET'
+        ]
+    ];
+    
     public $subModules = [
         'submoduleTest'
     ];
@@ -31,6 +37,14 @@ class Test extends Module {
 
     function othertest($name, $other) {
         echo "test $name $other";
+    }
+
+    function t() {
+        echo "test none";
+    }
+
+    function strangemethod($a) {
+        echo "this is a strange method with argument $a";
     }
 
     

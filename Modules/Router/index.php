@@ -1,15 +1,19 @@
 <?php
 
 use Core\Module;
+use Core\Objects\Utils;
 require_once('Objects/Route.php');
-
+require_once('Objects/RouteGroup.php');
+require_once('Objects/Context.php');
 
 class Router extends Module {
     public $name = "Router";
     public $fetchedRoute = [];
     public $routes = [];
+    public $routeGroups = [];
+    public $routeContexts = [];
     public $routeObj;
-
+    public $routeExecuted = false;
     function __construct($oxigen) {
         global $PATH_CONFIGURATION;
         $this->basepath = $PATH_CONFIGURATION['basepath'];
@@ -47,18 +51,33 @@ class Router extends Module {
         foreach($this->routes as $route) {
             $route->execute($fRoot, $reqMet);
         }
-    }
 
-    function createContext($context, $callback) {
-
-    }
-
-    private function checkRoute($url) {
-        if ($url[0] != "/") {
-            $url = "/" . $url;
+        foreach($this->routeGroups as $routeGroup) {
+            $routeGroup->execute($fRoot, $reqMet);
         }
-        return $url;
+
+        foreach($this->routeContexts as $routeContext) {
+            $routeContext->execute($fRoot, $reqMet);
+        }
+
+        if (!$this->routeExecuted) {
+            echo "Error 404";
+        }
     }
+
+    /**
+    * createGroup('user', function(Group $group) {
+    *   $group->get('/:id', 'User/get/:id')
+    *   $group->get('/hello/:id');
+    *   return $group;
+    * })
+    * 
+    */
+    function createGroup($group, $callback) {
+        $g = $callback(new RouteGroup($group, $this));
+        $this->routeGroups[] = $g;
+    }
+
 
     /**
     * createRoute('/user/:id', 'GET', 'Users/get/:id')
@@ -66,7 +85,7 @@ class Router extends Module {
     * Creates a direct Route
     */
     function createRoute($path, $method, $modulePath) {
-        $path = $this->checkRoute($path);
+        $path = Utils::checkRoute($path);
         $r = new Route($this, $path, $method, $modulePath);
         $this->routes[] = $r;
     }
@@ -77,9 +96,20 @@ class Router extends Module {
      * Creates a GET method route
      */
     function getRoute($path, $modulePath) {
-        $path = $this->checkRoute($path);
+        $path = Utils::checkRoute($path);
         $r = new Route($this, $path, 'GET', $modulePath);
         $this->routes[] = $r;
+    }
+
+    /**
+    * createContext('Test')
+    * 
+    * Links a module with the router. 
+    * Example:
+    *       http:/myweb.page/Test/test/1
+    */
+    function createContext($modulePath) {
+        $this->routeContexts[] = new Context($this, $modulePath);
     }
 
     function hello($name) {
