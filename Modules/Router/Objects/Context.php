@@ -21,6 +21,10 @@ class Context {
         return $this->parent->oxigen->{$this->_moduleName}->routedMethods;
     }
 
+    function getDefaultRoutedMethods() {
+        return $this->parent->oxigen->{$this->_moduleName}->defaultRoutedMethods;
+    }
+
     function formattedFunctionParameters($methodName) {
         $params = Utils::getNumberOfParameters($this->_moduleName, $methodName);
         //print_r($params);
@@ -33,15 +37,59 @@ class Context {
     }
 
     function generateRoutes() {
-        foreach($this->getRoutedMethods() as $routedMethod) {
-            $formattedParameters = $this->formattedFunctionParameters($routedMethod['route']);
+        //print_r($this->getDefaultRoutedMethods());
+        $defRoutedMethods = $this->getDefaultRoutedMethods();
+        $routedMethods = $this->getRoutedMethods();
+        foreach($defRoutedMethods as $routedMethod) {
+            $formattedParameters = $this->formattedFunctionParameters($routedMethod['function']);
             //echo $formattedParameters;
+            //print_r($routedMethod);
+            if ($routedMethod['route'] == "/") {
+                $this->routes[] = new Route(
+                    $this->parent, 
+                    $this->moduleName . "/",
+                    $routedMethod['method'],
+                    $this->_moduleName . "/" . $routedMethod['function'] . "/" . $formattedParameters
+                    );
+            } else {
+                $this->routes[] = new Route(
+                    $this->parent, 
+                    $this->moduleName . "/" . $routedMethod['route'] . "/" . $formattedParameters,
+                    $routedMethod['method'],
+                    $this->_moduleName . "/" . $routedMethod['function'] . "/" . $formattedParameters
+                    );
+            }
+           
+                
+                echo $this->moduleName . "/" . $routedMethod['route'] . "/" . $formattedParameters . "</br>";
+                echo $routedMethod['method'] . "</br>";
+                echo $this->_moduleName . "/" . $routedMethod['function'] . "/" . $formattedParameters . "</br>";
+        }
 
-            $this->routes[] = new Route(
-                $this->parent, 
-                $this->moduleName . "/" . $routedMethod['route'] . "/" . $formattedParameters,
-                $routedMethod['method'],
-                $this->_moduleName . "/" . $routedMethod['route'] . "/" . $formattedParameters);
+        foreach($routedMethods as $routedMethod) {
+            //$formattedParameters = $this->formattedFunctionParameters($routedMethod['route']);
+            //echo $formattedParameters;
+            //print_r($routedMethod);
+            if (array_key_exists("function", $routedMethod)) {
+                //echo "function </br>";
+                $formattedParameters = $this->formattedFunctionParameters($routedMethod['function']);
+                $this->routes[] = new Route(
+                    $this->parent, 
+                    $this->moduleName . "/" . $routedMethod['route'] . "/" . $formattedParameters,
+                    $routedMethod['method'],
+                    $this->_moduleName . "/" . $routedMethod['function'] . "/" . $formattedParameters
+                );
+            } else {
+                //echo "route </br>";
+                $formattedParameters = $this->formattedFunctionParameters($routedMethod['route']);
+                $this->routes[] = new Route(
+                    $this->parent, 
+                    $this->moduleName . "/" . $routedMethod['route'] . "/" . $formattedParameters,
+                    $routedMethod['method'],
+                    $this->_moduleName . "/" . $routedMethod['route'] . "/" . $formattedParameters
+                );
+            }
+            
         }
     }
 

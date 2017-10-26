@@ -5,17 +5,38 @@ namespace Core;
 use Core\Objects\QueryBuilder;
 use Core\Objects\Database;
 use Core\Objects\Table;
+use Core\Objects\Template;
+
 class Module {
     public $subModules = [];
+
     public $routedMethods = [];
+
+    public $defaultRoutedMethods = [
+        [
+            'route' => '/',
+            'function' => 'index',
+            'method' => 'GET'
+        ]
+    ];
+
     public $name = "defaultName";
+
     public $moduleRoute;
+
     public $tablename;
+
     public $isGlobal = true;
+
     public $enabled = true;
+
     public $generate_table = true;
+
     public $db;
+
     public $queryBuilder;
+
+
     function __construct($oxigen) {
         if (!$this->enabled) {
             return;
@@ -198,6 +219,15 @@ class Module {
                     ->build();
             return $this->db->execute($query);
         }
+    }
+
+
+
+
+    function index() {
+        $hola = "Test";
+        $quetal = "¿Qué tal?";
+        Template::render("index", compact('hola', 'quetal'), $this);
     }
 
 
