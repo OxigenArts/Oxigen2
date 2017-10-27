@@ -18,11 +18,13 @@ class Router extends Module {
         global $PATH_CONFIGURATION;
         $this->basepath = $PATH_CONFIGURATION['basepath'];
         parent::__construct($oxigen);
-        //echo "Router instanced";
+        
+
+
     }
 
     function init() {
-        
+
     }
 
     function start() {
@@ -37,6 +39,8 @@ class Router extends Module {
         
         global $Router;
         $Router = $this;
+        
+        require_once('Oxigen/default.php');
         require_once('routes.php');
         $this->executeRoutes();
     }

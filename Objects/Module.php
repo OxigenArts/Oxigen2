@@ -17,6 +17,11 @@ class Module {
             'route' => '/',
             'function' => 'index',
             'method' => 'GET'
+        ],
+        [
+            'route' => '/',
+            'function' => 'retrieve',
+            'method' => 'GET'
         ]
     ];
 
@@ -32,6 +37,8 @@ class Module {
 
     public $generate_table = true;
 
+    public $mainModule = false;
+    
     public $db;
 
     public $queryBuilder;
@@ -119,12 +126,25 @@ class Module {
         //print $query;
 
         //print_r($this->db->execute($query)[0]);
-        return $this->db->execute($query)[0];
+
+        $res = $this->db->execute($query);
+        //return $this->db->execute($query)[0];
+        if (count($res) > 0) {
+            return $res[0];
+        } else {
+            return [];
+        }
+        
     }
 
     function getWhere(Array $data = null) {
         $query = $this->queryBuilder->select()->where($data)->build();
-        return $this->db->execute($query)[0];
+        $res = $this->db->execute($query);
+        if (count($res) > 0) {
+            return $res[0];
+        } else {
+            return [];
+        }
         
     }
 
@@ -141,7 +161,7 @@ class Module {
                         ->where($data)
                         ->build();
         }
-        
+
         return $this->db->execute($query);
     }
 
@@ -208,6 +228,9 @@ class Module {
                  ->withColumns($data)
                  ->build();
         //echo $query . "</br>";
+        $this
+            ->queryBuilder
+            ->withTable($this->tablename);
         return $this->db->execute($query);
     }
 
@@ -230,7 +253,12 @@ class Module {
         Template::render("index", compact('hola', 'quetal'), $this);
     }
 
-
+    function retrieve($id) {
+        $doc = $this->get($id);
+        //print $id;
+        //print_r($doc);
+        Template::render("retrieve", $doc, $this);
+    }
 
     
 

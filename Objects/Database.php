@@ -9,7 +9,12 @@ class Database {
     private $table;
     function __construct($table) {
         $this->table = $table;
-        $this->PDO = new PDO('mysql:host='.DB_HOST.';dbname='.DB_DB, DB_USER, DB_PW);
+        try {
+            $this->PDO = new PDO('mysql:host='.DB_HOST.';dbname='.DB_DB, DB_USER, DB_PW);
+        } catch(PDOException $e) {
+            print $e;
+        }
+        
         
     }
 

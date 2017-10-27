@@ -7,9 +7,14 @@ class Test extends Module {
     public $name = "Test";
     public $tablename = "other_test";
     public $enabled = true;
+    public $mainModule = true;
     public $routedMethods = [
         [
             'route' => 'strangemethod',
+            'method' => 'GET'
+        ],
+        [
+            'route' => 'test',
             'method' => 'GET'
         ]
     ];

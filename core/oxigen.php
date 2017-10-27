@@ -47,6 +47,9 @@ class Oxigen
       $this->{$name} = $module;
       $this->{$name}->initSubModules();
       $this->{$name}->migrateTables();
+      if ($this->{$name}->mainModule) {
+        $this->mainModule = &$this->{$name};
+      }
       $this->loadedModules[$name] = "loaded";
   }
   
