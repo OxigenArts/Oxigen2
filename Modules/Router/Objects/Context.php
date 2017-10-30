@@ -29,10 +29,14 @@ class Context {
         return $this->parent->oxigen->{$this->_moduleName}->mainModule;
     }
 
-    function formattedFunctionParameters($methodName) {
+    function formattedFunctionParameters($methodName, $methodUrl) {
         $params = Utils::getNumberOfParameters($this->_moduleName, $methodName);
         //print_r($params);
         $str = "";
+
+        if ($methodUrl == "POST") {
+            return "";
+        }
         foreach($params as $paramKey => $paramValue) {
             $str .=  ":$paramValue/";
         }
@@ -50,7 +54,7 @@ class Context {
             if ($this->isMainModule()) {
                 if (array_key_exists("function", $routedMethod)) {
                     //echo "function </br>";
-                    $formattedParameters = $this->formattedFunctionParameters($routedMethod['function']);
+                    $formattedParameters = $this->formattedFunctionParameters($routedMethod['function'], $routedMethod['method']);
                     $this->routes[] = new Route(
                         $this->parent, 
                         "/" . $routedMethod['route'] . "/" . $formattedParameters,
@@ -59,7 +63,7 @@ class Context {
                     );
                 } else {
                     //echo "route </br>";
-                    $formattedParameters = $this->formattedFunctionParameters($routedMethod['route']);
+                    $formattedParameters = $this->formattedFunctionParameters($routedMethod['route'], $routedMethod['method']);
                     $this->routes[] = new Route(
                         $this->parent, 
                         "/" . $routedMethod['route'] . "/" . $formattedParameters,
@@ -70,7 +74,7 @@ class Context {
             } else {
                 if (array_key_exists("function", $routedMethod)) {
                     //echo "function </br>";
-                    $formattedParameters = $this->formattedFunctionParameters($routedMethod['function']);
+                    $formattedParameters = $this->formattedFunctionParameters($routedMethod['function'], $routedMethod['method']);
                     $this->routes[] = new Route(
                         $this->parent, 
                         $this->moduleName . "/" . $routedMethod['route'] . "/" . $formattedParameters,
@@ -79,7 +83,7 @@ class Context {
                     );
                 } else {
                     //echo "route </br>";
-                    $formattedParameters = $this->formattedFunctionParameters($routedMethod['route']);
+                    $formattedParameters = $this->formattedFunctionParameters($routedMethod['route'], $routedMethod['method']);
                     $this->routes[] = new Route(
                         $this->parent, 
                         $this->moduleName . "/" . $routedMethod['route'] . "/" . $formattedParameters,
@@ -96,10 +100,7 @@ class Context {
     function generateDefaultRoutedMethods() {
         $defRoutedMethods = $this->getDefaultRoutedMethods();
         foreach($defRoutedMethods as $routedMethod) {
-            $formattedParameters = $this->formattedFunctionParameters($routedMethod['function']);
-            //echo "/" . $formattedParameters . "</br>";
-            //echo $formattedParameters;
-            //print_r($routedMethod);
+            $formattedParameters = $this->formattedFunctionParameters($routedMethod['function'], $routedMethod['method']);
             if ($this->isMainModule()) {
                 if ($routedMethod['route'] == "/" || $routedMethod['route'] == "") {
                     $this->routes[] = new Route(

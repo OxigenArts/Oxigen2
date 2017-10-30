@@ -22,6 +22,11 @@ class Module {
             'route' => '/',
             'function' => 'retrieve',
             'method' => 'GET'
+        ],
+        [
+            'route' => '/',
+            'function' => 'remove',
+            'method' => 'POST'
         ]
     ];
 
@@ -258,6 +263,12 @@ class Module {
         //print $id;
         //print_r($doc);
         Template::render("retrieve", $doc, $this);
+    }
+
+    function remove($id) {
+        $doc = $this->delete($id);
+        echo json_encode($doc);
+        //Template::render("remove", $doc, $this);
     }
 
     
