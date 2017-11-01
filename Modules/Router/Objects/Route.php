@@ -37,7 +37,7 @@ class Route {
             if ($method == "GET") {
                 $this->routeParameters = $matches;
             } else {
-                $this->routeParameters = Utils::parseParameters($this->parsedModuleMethod[0], $this->parsedModuleMethod[1], $this->request->postData());
+                $this->routeParameters = Utils::parseParameters($this->parsedModuleMethod[0], $this->parsedModuleMethod[1], $this->request->data());
             }
             
             $this->call_module_method();

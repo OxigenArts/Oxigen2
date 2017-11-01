@@ -12,23 +12,7 @@ class Module {
 
     public $routedMethods = [];
 
-    public $defaultRoutedMethods = [
-        [
-            'route' => '/',
-            'function' => 'index',
-            'method' => 'GET'
-        ],
-        [
-            'route' => '/',
-            'function' => 'retrieve',
-            'method' => 'GET'
-        ],
-        [
-            'route' => '/',
-            'function' => 'remove',
-            'method' => 'POST'
-        ]
-    ];
+    public $defaultRoutedMethods = [];
 
     public $name = "defaultName";
 
@@ -39,6 +23,8 @@ class Module {
     public $isGlobal = true;
 
     public $enabled = true;
+
+    public $restEnabled = true;
 
     public $generate_table = true;
 
@@ -64,8 +50,33 @@ class Module {
 
         //Init sequence
         $this->__init__();
-    }
 
+        //default routed methods
+        if ($this->restEnabled) {
+            $this->defaultRoutedMethods = [
+                [
+                    'route' => '/',
+                    'function' => 'index',
+                    'method' => 'GET'
+                ],
+                [
+                    'route' => '/',
+                    'function' => 'retrieve',
+                    'method' => 'GET'
+                ],
+                [
+                    'route' => '/',
+                    'function' => 'remove',
+                    'method' => 'DELETE'
+                ],
+                [
+                    'route' => '/',
+                    'function' => 'modify',
+                    'method' => 'UPDATE'
+                ]
+            ];
+        }
+    }
     function initSubModules() {
         if (count($this->subModules) > 0) {
             $this->oxigen->loader->loadSubModules($this->name, $this->subModules);
@@ -271,6 +282,10 @@ class Module {
         //Template::render("remove", $doc, $this);
     }
 
+    function modify($id, $data) {
+        $doc = $this->update($id, $data);
+        echo json_encode($doc);
+    }
     
 
     
