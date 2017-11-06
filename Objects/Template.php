@@ -2,6 +2,9 @@
 
 namespace Core\Objects;
 
+use Core\Objects\Headers;
+use Core\Objects\Utils;
+
 class Template {
     
 
@@ -9,7 +12,19 @@ class Template {
 
     }
 
-    public static function render($templatePath, $vars, $module = null) {
+    public static function renderFormattedResponse($modelArr, $type = 'json') {
+        Headers::setHeader('Content-Type', Utils::content_type($type));
+        switch($type) {
+            case 'json':
+                echo json_encode($modelArr);
+            break;
+            default:
+                echo "fatal error: Content-Type not identified"; 
+            break;
+        }
+    }
+
+    public static function render($templatePath, $vars, $module = null, $type = null) {
 
 
         $modelArr = [];
@@ -28,6 +43,13 @@ class Template {
 
         //print_r($GLOBALS['hola']);
         //print_r($vars);
+
+        if ($type) {
+            Utils::renderFormattedResponse($modelArr, $type);
+            return;
+        }
+        
+
         if ($module) {
             require_once("Templates/{$module->name}/".$templatePath.".php");
         } else {

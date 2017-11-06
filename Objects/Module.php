@@ -34,7 +34,8 @@ class Module {
 
     public $queryBuilder;
 
-
+    public $type;
+    
     function __construct($oxigen) {
         if (!$this->enabled) {
             return;
@@ -266,25 +267,26 @@ class Module {
     function index() {
         $hola = "Test";
         $quetal = "¿Qué tal?";
-        Template::render("index", compact('hola', 'quetal'), $this);
+        Template::render("index", compact('hola', 'quetal'), $this, $this->type);
     }
 
     function retrieve($id) {
         $doc = $this->get($id);
         //print $id;
         //print_r($doc);
-        Template::render("retrieve", $doc, $this);
+        Template::render("retrieve", $doc, $this, $this->type);
     }
 
     function remove($id) {
         $doc = $this->delete($id);
-        echo json_encode($doc);
-        //Template::render("remove", $doc, $this);
+        //echo json_encode($doc);
+        Template::render("remove", $doc, $this);
     }
 
     function modify($id, $data) {
         $doc = $this->update($id, $data);
-        echo json_encode($doc);
+        //echo json_encode($doc);
+        Template:render("modify", $doc, $this, $this->type);
     }
     
 

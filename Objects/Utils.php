@@ -1,8 +1,13 @@
 <?php
 
 namespace Core\Objects;
-
+use Core\Exceptions\NotFoundContentTypeException;
 class Utils {
+
+
+    private static $content_types = [
+        'json' => 'application/json'
+    ];
 
     public static function checkRoute($url) {
         if ($url[0] != "/") {
@@ -41,6 +46,16 @@ class Utils {
         return $values;
 
 
+    }
+
+
+    public static function content_type($type) {
+        try {
+            return self::$content_types[$type];
+        } catch(NotFoundContentType $e) {
+            print_r($e);
+        }
+        //return self::$content_types[$type] ? self::$content_types[$type] : null;
     }
     
 
